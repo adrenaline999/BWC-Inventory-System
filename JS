@@ -1,0 +1,159 @@
+let data = [];
+let editIndex = -1;
+
+const division = document.getElementById("division");
+const mrto = document.getElementById("mrto");
+const assign = document.getElementById("assign");
+const type = document.getElementById("type");
+const brand = document.getElementById("brand");
+const model = document.getElementById("model");
+const serial = document.getElementById("serial");
+const osproperty = document.getElementById("osproperty");
+const status = document.getElementById("status");
+const pm = document.getElementById("pm");
+const filterDivision = document.getElementById("filterDivision");
+const searchInput = document.getElementById("searchInput");
+
+// Load saved data
+window.onload = () => {
+    let stored = localStorage.getItem("inventoryData");
+    if(stored) {
+        data = JSON.parse(stored);
+        displayTable();
+    }
+}
+
+document.getElementById("inventoryForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    let dateAdded = new Date().toLocaleDateString();
+
+    let row = [
+        division.value, mrto.value, assign.value, type.value,
+        brand.value, model.value, serial.value, osproperty.value, status.value, pm.value, dateAdded
+    ];
+
+    if(editIndex >= 0){
+        row[10] = data[editIndex][10]; // keep original date added
+        data[editIndex] = row;
+        editIndex = -1;
+    } else {
+        data.push(row);
+    }
+
+    localStorage.setItem("inventoryData", JSON.stringify(data));
+    displayTable();
+    this.reset();
+});
+
+function displayTable(){
+    let tbody = document.getElementById("inventoryTable");
+    let filter = filterDivision.value.toLowerCase();
+    let search = searchInput.value.toLowerCase();
+    tbody.innerHTML = "";
+
+    data.forEach((row, i)=>{
+        if(filter && row[0].toLowerCase() !== filter) return;
+        if(search && !row.some(cell => (cell||"").toLowerCase().includes(search))) return;
+
+        let tr = document.createElement("tr");
+
+        // Row number
+        let tdIndex = document.createElement("td");
+        tdIndex.textContent = i+1;
+        tr.appendChild(tdIndex);
+
+        // Status coloring and emoji
+        let statusValue = (row[8]||"").trim().toLowerCase();
+        if(statusValue === "working") tr.className = "working", row[8] = "✅ Working";
+        else if(statusValue === "not working") tr.className = "notworking", row[8] = "❌ Not Working";
+        else if(statusValue === "for repair") tr.className = "repair", row[8] = "🛠 For Repair";
+
+        row.forEach(cell=>{
+            let td = document.createElement("td");
+            td.textContent = cell;
+            tr.appendChild(td);
+        });
+
+        let actionTd = document.createElement("td");
+        actionTd.innerHTML = `<button onclick="editRow(${i})">Edit</button> <button onclick="deleteRow(${i})">Delete</button>`;
+        tr.appendChild(actionTd);
+
+        tbody.appendChild(tr);
+    });
+}
+
+function editRow(i){
+    editIndex = i;
+    let r = data[i];
+
+    division.value = r[0];
+    mrto.value = r[1];
+    assign.value = r[2];
+    type.value = r[3];
+    brand.value = r[4];
+    model.value = r[5];
+    serial.value = r[6];
+    osproperty.value = r[7];
+    status.value = r[8].replace(/✅ |❌ |🛠 /,"").toLowerCase();
+    pm.value = r[9];
+}
+
+function deleteRow(i){
+    if(confirm("Delete this record?")){
+        data.splice(i,1);
+        localStorage.setItem("inventoryData", JSON.stringify(data));
+        displayTable();
+    }
+}
+
+function downloadCSV(){
+    let csv = "Division,MR To,Assigned,Type,Brand,Model,Serial,OS Property,Status,Preventive Maintenance,Date Added\n";
+    data.forEach(r=>{
+        csv += r.map(v=>{
+            let safe = v||"";
+            safe = safe.replace(/\r?\n|\r/g, " ");
+            safe = safe.replace(/"/g, '""');
+            return `"${safe}"`;
+        }).join(",")+"\n";
+    });
+    let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ict_inventory.csv";
+    a.click();
+}
+
+function loadCSV(e){
+    let reader = new FileReader();
+    reader.onload = ()=>{
+        let lines = reader.result.trim().split("\n").slice(1);
+        data = lines.map(line=>parseCSVLine(line).map(cell=>cell.trim()));
+        localStorage.setItem("inventoryData", JSON.stringify(data));
+        displayTable();
+    };
+    reader.readAsText(e.target.files[0]);
+}
+
+function parseCSVLine(line){
+    let result=[];
+    let current="";
+    let insideQuotes=false;
+
+    for(let i=0;i<line.length;i++){
+        let char=line[i];
+        if(char==='"' && line[i+1]==='"'){
+            current+='"';
+            i++;
+        }else if(char==='"'){
+            insideQuotes=!insideQuotes;
+        }else if(char==="," && !insideQuotes){
+            result.push(current);
+            current="";
+        }else{
+            current+=char;
+        }
+    }
+    result.push(current);
+    return result;
+}
