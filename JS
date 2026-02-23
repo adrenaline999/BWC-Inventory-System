@@ -65,9 +65,9 @@ function displayTable(){
 
         // Status coloring and emoji
         let statusValue = (row[8]||"").trim().toLowerCase();
-        if(statusValue === "working") tr.className = "working", row[8] = "✅ Working";
-        else if(statusValue === "not working") tr.className = "notworking", row[8] = "❌ Not Working";
-        else if(statusValue === "for repair") tr.className = "repair", row[8] = "🛠 For Repair";
+        if(statusValue === "working") tr.className = "working", row[8]
+        else if(statusValue === "not working") tr.className = "notworking", row[8]         
+	else if(statusValue === "for repair") tr.className = "repair", row[8] 
 
         row.forEach(cell=>{
             let td = document.createElement("td");
@@ -95,7 +95,7 @@ function editRow(i){
     model.value = r[5];
     serial.value = r[6];
     osproperty.value = r[7];
-    status.value = r[8].replace(/✅ |❌ |🛠 /,"").toLowerCase();
+    status.value = r[8];
     pm.value = r[9];
 }
 
@@ -109,22 +109,24 @@ function deleteRow(i){
 
 function downloadCSV(){
     let csv = "Division,MR To,Assigned,Type,Brand,Model,Serial,OS Property,Status,Preventive Maintenance,Date Added\n";
+
     data.forEach(r=>{
         csv += r.map(v=>{
-            let safe = v||"";
+            let safe = v || "";
             safe = safe.replace(/\r?\n|\r/g, " ");
             safe = safe.replace(/"/g, '""');
-            return `"${safe}"`;
-        }).join(",")+"\n";
+
+            // Force ALL columns to text (left aligned in Excel)
+            return `="${safe}"`;
+        }).join(",") + "\n";
     });
+
     let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     let a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "ict_inventory.csv";
     a.click();
-}
-
-function loadCSV(e){
+}function loadCSV(e){
     let reader = new FileReader();
     reader.onload = ()=>{
         let lines = reader.result.trim().split("\n").slice(1);
