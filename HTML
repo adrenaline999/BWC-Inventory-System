@@ -1,17 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>BWC Inventory System</title>
     <link rel="stylesheet" href="Style.css">
-</head>
-<body>
 <div class="container">
 
-    <h2>BWC Inventory System</h2>
+<h2>BWC Inventory System</h2>
 
-        <select id="filterDivision" onchange="displayTable()">
-        <option value="">All Divisions</option>
+<!-- Filter -->
+<select id="filterDivision" onchange="displayTable()">
+    <option value="">All Divisions</option>
+    <option>IT UNIT</option>
+    <option>LSRAD</option>
+    <option>NOT IN BWC</option>
+    <option>OD</option>
+    <option>PMTSSD</option>
+    <option>PPDD</option>
+</select>
+
+<input id="searchInput" placeholder="Search..." oninput="displayTable()" style="width: 300px;">
+
+<hr>
+
+<form id="inventoryForm">
+    <select id="division" required>
+        <option value="">-- Division --</option>
         <option>IT UNIT</option>
         <option>LSRAD</option>
         <option>NOT IN BWC</option>
@@ -20,103 +33,87 @@
         <option>PPDD</option>
     </select>
 
-    <input id="searchInput" placeholder="Search..." oninput="displayTable()" style="width: 300px;">
+    <input id="mrto" placeholder="MR To" required>
+    <input id="assign" placeholder="Assigned To" required>
 
-    <hr>
+    <select id="type" required>
+        <option value="">-- Equipment Type --</option>
+        <option>15&quot; Monitor</option>
+        <option>27&quot; Monitor</option>
+        <option>55&quot; Monitor</option>
+        <option>65&quot; Smart TV</option>
+        <option>Desktop</option>
+        <option>Firewall</option>
+        <option>Hard Drive</option>
+        <option>Head Phone</option>
+        <option>Keyboard</option>
+        <option>Laptop</option>
+        <option>Monitor</option>
+        <option>Network Cable Tester</option>
+        <option>Paper Shredder</option>
+        <option>Printer</option>
+        <option>Projector</option>
+        <option>Rally Camera</option>
+        <option>Recorder</option>
+        <option>Router</option>
+        <option>Scanner</option>
+        <option>Speaker</option>
+        <option>SSD</option>
+        <option>Switch</option>
+        <option>Tablet</option>
+        <option>UPS</option>
+        <option>Video Camera</option>
+        <option>Web Camera</option>
+        <option>Wireless Adaptor</option>
+        <option>Wireless Mouse</option>
+        <option>Wireless Phone</option>
+    </select>
 
-    <form id="inventoryForm">
-        <select id="division" required>
-            <option value="">-- Division --</option>
-            <option>IT UNIT</option>
-            <option>LSRAD</option>
-            <option>NOT IN BWC</option>
-            <option>OD</option>
-            <option>PMTSSD</option>
-            <option>PPDD</option>
-        </select>
+    <input id="brand" placeholder="Brand">
+    <input id="model" placeholder="Model">
+    <input id="serial" placeholder="Serial No">
+    <input id="osproperty" placeholder="OS Property No">
 
-        <input id="mrto" placeholder="MR To" required>
-        <input id="assign" placeholder="Assigned To" required>
+    <select id="status">
+        <option value="">Status</option>
+        <option>working</option>
+        <option>not Working</option>
+        <option>for Repair</option>
+    </select>
 
-        <select id="type" required>
-            <option value="">-- Equipment Type --</option>
-            <option>15&quot; Monitor</option>
-            <option>27&quot; Monitor</option>
-            <option>55&quot; Monitor</option>
-            <option>65&quot; Smart TV</option>
-            <option>Desktop</option>
-            <option>Firewall</option>
-            <option>Hard Drive</option>
-            <option>Head Phone</option>
-            <option>Keyboard</option>
-            <option>Laptop</option>
-            <option>Monitor</option>
-            <option>Network Cable Tester</option>
-            <option>Paper Shredder</option>
-            <option>Printer</option>
-            <option>Projector</option>
-            <option>Rally Camera</option>
-            <option>Recorder</option>
-            <option>Router</option>
-            <option>Scanner</option>
-            <option>Speaker</option>
-            <option>SSD</option>
-            <option>Switch</option>
-            <option>Tablet</option>
-            <option>UPS</option>
-            <option>Video Camera</option>
-            <option>Web Camera</option>
-            <option>Wireless Adaptor</option>
-            <option>Wireless Mouse</option>
-            <option>Wireless Phone</option>
-        </select>
+    <input id="pm" placeholder="Preventive Maintenance">
 
-        <input id="brand" placeholder="Brand">
-        <input id="model" placeholder="Model">
-        <input id="serial" placeholder="Serial No">
-        <input id="osproperty" placeholder="OS Property No">
+    <br><br>
+    <button type="submit">Save</button>
+</form>
 
-        <select id="status">
-            <option value="">Status</option>
-            <option>working</option>
-            <option>not Working</option>
-            <option>for Repair</option>
-        </select>
+<table>
+<thead>
+<tr>
+    <th>#</th>
+    <th>Division</th>
+    <th>MR To</th>
+    <th>Assigned</th>
+    <th>Type</th>
+    <th>Brand</th>
+    <th>Model</th>
+    <th>Serial</th>
+    <th>OS Property</th>
+    <th>Status</th>
+    <th>Preventive Maintenance</th>
+    <th>Date Added</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody id="inventoryTable"></tbody>
+</table>
 
-        <input id="pm" placeholder="Preventive Maintenance">
-
-        <br><br>
-        <button type="submit">Save</button>
-    </form>
-
-    <table>
-        <thead>
-        <tr>	
-            <th>#</th>
-            <th>Division</th>
-            <th>MR To</th>
-            <th>Assigned</th>
-            <th>Type</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Serial</th>
-            <th>OS Property</th>
-            <th>Status</th>
-            <th>Preventive Maintenance</th>
-            <th>Date Added</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="inventoryTable"></tbody>
-    </table>
-
-    <br>
-    <button onclick="downloadCSV()">Save to Excel</button>
-    <input type="file" accept=".csv" onchange="loadCSV(event)">
+<br>
+<button onclick="downloadCSV()">Save to Excel</button>
+<input type="file" accept=".csv" onchange="loadCSV(event)">
 
 </div>
 
-<script src="javascript.js"></script>
-</body>
+<script src="javascript.js"></script> 
+</body> 
 </html>
-	
